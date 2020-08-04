@@ -10,89 +10,12 @@ export type UUAF = {
   universeId: string;
 };
 
-type UUAFString = "short" | "long";
-type UUAFRaw = "raw";
-type UUAFKind = UUAFString | UUAFRaw;
-
-export function uuafV1(opts?: u.V1Options & { kind: UUAFString }): string;
-export function uuafV1(opts?: u.V1Options & { kind: UUAFRaw }): UUAF;
-export function uuafV1(
-  opts: u.V1Options & {
-    kind: UUAFKind;
-  } = { kind: "long" }
-) {
-  const id = uuid.v1(opts);
-  if (opts.kind === "raw") {
-    return fromUuid(id, "raw");
-  }
-  return fromUuid(id, opts.kind);
-}
-
-export function uuafV3(
-  name: string | u.InputBuffer,
-  nsp: string | u.InputBuffer
-): string;
-export function uuafV3(
-  name: string | u.InputBuffer,
-  nsp: string | u.InputBuffer,
-  kind: UUAFString
-): string;
-export function uuafV3(
-  name: string | u.InputBuffer,
-  nsp: string | u.InputBuffer,
-  kind: UUAFRaw
-): UUAF;
-export function uuafV3(
-  name: string | u.InputBuffer,
-  nsp: string | u.InputBuffer,
-  kind: UUAFKind = "long"
-) {
-  const id = uuid.v3(name, nsp);
-  if (kind === "raw") {
-    return fromUuid(id, "raw");
-  }
-  return fromUuid(id, kind);
-}
-
-export function uuafV4(
-  opts?: u.V4Options & {
-    kind: UUAFString;
-  }
-): string;
-export function uuafV4(opts?: u.V4Options & { kind: UUAFRaw }): UUAF;
-export function uuafV4(
-  opts: u.V4Options & { kind: UUAFKind } = {
-    kind: "long",
-  }
-) {
-  const id = uuid.v4(opts);
-  if (opts.kind === "raw") {
-    return fromUuid(id, "raw");
-  }
-  return fromUuid(id, opts.kind);
-}
-
-export function uuafV5(
-  name: string | u.InputBuffer,
-  nsp: string | u.InputBuffer,
-  kind?: UUAFString
-): string;
-export function uuafV5(
-  name: string | u.InputBuffer,
-  nsp: string | u.InputBuffer,
-  kind: UUAFRaw
-): UUAF;
-export function uuafV5(
-  name: string | u.InputBuffer,
-  nsp: string | u.InputBuffer,
-  kind: UUAFKind = "long"
-) {
-  const id = uuid.v5(name, nsp);
-  if (kind === "raw") {
-    return fromUuid(id, "raw");
-  }
-  return fromUuid(id, kind);
-}
+export const uuaf = Object.assign(uuafV4, {
+  v1: uuafV1,
+  v3: uuafV3,
+  v4: uuafV4,
+  v5: uuafV5,
+});
 
 export function fromUuid(id: string, kind?: UUAFString): string;
 export function fromUuid(id: string, kind: UUAFRaw): UUAF;
@@ -164,6 +87,90 @@ export function fromUuaf(
   }
 }
 
+type UUAFString = "short" | "long";
+type UUAFRaw = "raw";
+type UUAFKind = UUAFString | UUAFRaw;
+
+function uuafV1(opts?: u.V1Options & { kind: UUAFString }): string;
+function uuafV1(opts?: u.V1Options & { kind: UUAFRaw }): UUAF;
+function uuafV1(
+  opts: u.V1Options & {
+    kind: UUAFKind;
+  } = { kind: "long" }
+) {
+  const id = uuid.v1(opts);
+  if (opts.kind === "raw") {
+    return fromUuid(id, "raw");
+  }
+  return fromUuid(id, opts.kind);
+}
+
+function uuafV3(
+  name: string | u.InputBuffer,
+  nsp: string | u.InputBuffer
+): string;
+function uuafV3(
+  name: string | u.InputBuffer,
+  nsp: string | u.InputBuffer,
+  kind: UUAFString
+): string;
+function uuafV3(
+  name: string | u.InputBuffer,
+  nsp: string | u.InputBuffer,
+  kind: UUAFRaw
+): UUAF;
+function uuafV3(
+  name: string | u.InputBuffer,
+  nsp: string | u.InputBuffer,
+  kind: UUAFKind = "long"
+) {
+  const id = uuid.v3(name, nsp);
+  if (kind === "raw") {
+    return fromUuid(id, "raw");
+  }
+  return fromUuid(id, kind);
+}
+
+function uuafV4(
+  opts?: u.V4Options & {
+    kind: UUAFString;
+  }
+): string;
+function uuafV4(opts?: u.V4Options & { kind: UUAFRaw }): UUAF;
+function uuafV4(
+  opts: u.V4Options & { kind: UUAFKind } = {
+    kind: "long",
+  }
+) {
+  const id = uuid.v4(opts);
+  if (opts.kind === "raw") {
+    return fromUuid(id, "raw");
+  }
+  return fromUuid(id, opts.kind);
+}
+
+function uuafV5(
+  name: string | u.InputBuffer,
+  nsp: string | u.InputBuffer,
+  kind?: UUAFString
+): string;
+function uuafV5(
+  name: string | u.InputBuffer,
+  nsp: string | u.InputBuffer,
+  kind: UUAFRaw
+): UUAF;
+function uuafV5(
+  name: string | u.InputBuffer,
+  nsp: string | u.InputBuffer,
+  kind: UUAFKind = "long"
+) {
+  const id = uuid.v5(name, nsp);
+  if (kind === "raw") {
+    return fromUuid(id, "raw");
+  }
+  return fromUuid(id, kind);
+}
+
 const getShortString = ({
   recipeId,
   firstIngredient,
@@ -189,7 +196,7 @@ const parseUuaf = (uuaf: string, check: boolean): UUAF => {
       .replace("Formula", "")
       .replace(/[\.:+=]/g, "")
       .replace(/named/g, "")
-      .replace("Usable only in universe ", "")
+      .replace("Applicable only in universe ", "")
       .split(" ")
       .filter((x) => x !== "");
   } else {
@@ -203,7 +210,7 @@ const parseUuaf = (uuaf: string, check: boolean): UUAF => {
   const recipeId = splitted[0];
   const universeId = splitted[7];
   const kinds = [splitted[1], splitted[3], splitted[5]];
-  const names = [splitted[2], splitted[4], splitted[6]];
+  const parsedNames = [splitted[2], splitted[4], splitted[6]];
 
   if (check) {
     if (recipeId.length !== 8 || !/[0-9A-Fa-f]{8}/.test(recipeId)) {
@@ -218,16 +225,16 @@ const parseUuaf = (uuaf: string, check: boolean): UUAF => {
       throw new TypeError("Invalid UUAF (animal kind)");
     }
 
-    if (names.some((name) => !names.includes(name))) {
+    if (parsedNames.some((name) => !names.includes(name))) {
       throw new TypeError("Invalid UUAF (name)");
     }
   }
   return {
     recipeId,
     universeId,
-    firstIngredient: { kind: kinds[0], name: names[0] },
-    secondIngredient: { kind: kinds[1], name: names[1] },
-    result: { kind: kinds[2], name: names[2] },
+    firstIngredient: { kind: kinds[0], name: parsedNames[0] },
+    secondIngredient: { kind: kinds[1], name: parsedNames[1] },
+    result: { kind: kinds[2], name: parsedNames[2] },
   };
 };
 

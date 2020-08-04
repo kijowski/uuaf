@@ -2,15 +2,7 @@ import * as assert from "assert";
 import test from "baretest";
 import { v1, v3, v4, v5 } from "uuid";
 import { animals, names } from "./data";
-import {
-  fromUuid,
-  toUuid,
-  uuafV1,
-  uuafV3,
-  uuafV4,
-  uuafV5,
-  fromUuaf,
-} from "./index";
+import { fromUuid, toUuid, uuaf, fromUuaf } from "./index";
 
 const unique = <T>(arr: T[]) => [...new Set(arr)];
 
@@ -58,12 +50,16 @@ logicTests("encoding uuid v5 to uuaf should be reversible", () => {
 
 const apiTests = test("API");
 
+apiTests("there should be default way to crate UUAF", () => {
+  const uuaf1 = uuaf();
+});
+
 apiTests("there should be a way to crate UUAF from all kinds of UUID", () => {
   const nsp = v1();
-  const uuaf1 = uuafV1();
-  const uuaf3 = uuafV3("name", nsp);
-  const uuaf4 = uuafV4();
-  const uuaf5 = uuafV5("name", nsp);
+  const uuaf1 = uuaf.v1();
+  const uuaf3 = uuaf.v3("name", nsp);
+  const uuaf4 = uuaf.v4();
+  const uuaf5 = uuaf.v5("name", nsp);
 });
 
 apiTests("there should be a way to crate UUAF from existing UUID", () => {
@@ -72,23 +68,90 @@ apiTests("there should be a way to crate UUAF from existing UUID", () => {
 });
 
 apiTests("there should be a way to crate UUID from existing UUAF", () => {
-  const uuaf = uuafV1();
-  const safeId = toUuid(uuaf);
-  const unsafeId = toUuid(uuaf, false);
+  const uuafS = uuaf.v1();
+  const safeId = toUuid(uuafS);
+  const unsafeId = toUuid(uuafS, false);
 });
 
 apiTests("there should be a way to change representation of UUAF", () => {
-  const uuafLong = uuafV1();
+  const uuafLong = uuaf.v1();
   const shortFromLong = fromUuaf(uuafLong, "short");
   const rawFromShort = fromUuaf(shortFromLong, "raw");
   const longFromRaw = fromUuaf(rawFromShort, "long");
   assert.equal(uuafLong, longFromRaw);
 });
 
+const errorHandlingTests = test("ERRORS");
+
+errorHandlingTests("invalid input to fromUuid should throw", () => {
+  const invalid = "Something not ok";
+  try {
+    const x = fromUuid(invalid);
+    assert.fail("Invalid input should throw");
+  } catch (err) {
+    assert.equal(err.message, "Invalid UUID");
+  }
+});
+
+errorHandlingTests("invalid input to fromUuaf should throw", () => {
+  const invalid = "Something not ok";
+  try {
+    fromUuaf(invalid, "short");
+    assert.fail("Invalid input should throw");
+  } catch (err) {
+    assert.equal(err.message, "Invalid UUAF (length)");
+  }
+});
+
+errorHandlingTests("invalid input to fromUuaf should throw", () => {
+  const invalid =
+    "Formula INVALID: trout named Dennis + swan named Danielle = earwig named Kathleen. Applicable only in universe d7bc3eca1ee7";
+  try {
+    fromUuaf(invalid, "short");
+    assert.fail("Invalid input should throw");
+  } catch (err) {
+    assert.equal(err.message, "Invalid UUAF (recipe id)");
+  }
+});
+
+errorHandlingTests("invalid input to fromUuaf should throw", () => {
+  const invalid =
+    "Formula 106a16a0: trout named Dennis + swan named Danielle = earwig named Kathleen. Applicable only in universe INVALID";
+  try {
+    fromUuaf(invalid, "short");
+    assert.fail("Invalid input should throw");
+  } catch (err) {
+    assert.equal(err.message, "Invalid UUAF (universe id)");
+  }
+});
+
+errorHandlingTests("invalid input to fromUuaf should throw", () => {
+  const invalid =
+    "Formula 106a16a0: INVALID named Dennis + swan named Danielle = earwig named Kathleen. Applicable only in universe d7bc3eca1ee7";
+  try {
+    fromUuaf(invalid, "short");
+    assert.fail("Invalid input should throw");
+  } catch (err) {
+    assert.equal(err.message, "Invalid UUAF (animal kind)");
+  }
+});
+
+errorHandlingTests("invalid input to fromUuaf should throw", () => {
+  const invalid =
+    "Formula 106a16a0: trout named INVALID + swan named Danielle = earwig named Kathleen. Applicable only in universe d7bc3eca1ee7";
+  try {
+    fromUuaf(invalid, "short");
+    assert.fail("Invalid input should throw");
+  } catch (err) {
+    assert.equal(err.message, "Invalid UUAF (name)");
+  }
+});
+
 const runAllTests = async () => {
   await dataTests.run();
   await logicTests.run();
   await apiTests.run();
+  await errorHandlingTests.run();
 };
 
 runAllTests();
