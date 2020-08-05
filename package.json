@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "description": "Universally unique animal formulas",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "clean": "rm -rf dist/",
+    "build": "tsc",
+    "prepublishOnly": "npm run clean && npm run build && npm run test",
     "test": "node dist/tests.js"
   },
   "repository": {
