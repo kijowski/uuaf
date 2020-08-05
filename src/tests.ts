@@ -105,7 +105,7 @@ errorHandlingTests("invalid input to fromUuaf should throw", () => {
 
 errorHandlingTests("invalid input to fromUuaf should throw", () => {
   const invalid =
-    "Formula INVALID: trout named Dennis + swan named Danielle = earwig named Kathleen. Applicable only in universe d7bc3eca1ee7";
+    "Formula INVALID: trout Dennis + swan Danielle = earwig Kathleen (planet d7bc3eca1ee7 only)";
   try {
     fromUuaf(invalid, "short");
     assert.fail("Invalid input should throw");
@@ -116,18 +116,18 @@ errorHandlingTests("invalid input to fromUuaf should throw", () => {
 
 errorHandlingTests("invalid input to fromUuaf should throw", () => {
   const invalid =
-    "Formula 106a16a0: trout named Dennis + swan named Danielle = earwig named Kathleen. Applicable only in universe INVALID";
+    "Formula 106a16a0: trout Dennis + swan Danielle = earwig Kathleen (planet INVALID only)";
   try {
     fromUuaf(invalid, "short");
     assert.fail("Invalid input should throw");
   } catch (err) {
-    assert.equal(err.message, "Invalid UUAF (universe id)");
+    assert.equal(err.message, "Invalid UUAF (planet id)");
   }
 });
 
 errorHandlingTests("invalid input to fromUuaf should throw", () => {
   const invalid =
-    "Formula 106a16a0: INVALID named Dennis + swan named Danielle = earwig named Kathleen. Applicable only in universe d7bc3eca1ee7";
+    "Formula 106a16a0: INVALID Dennis + swan Danielle = earwig Kathleen. (planet d7bc3eca1ee7 only)";
   try {
     fromUuaf(invalid, "short");
     assert.fail("Invalid input should throw");
@@ -138,7 +138,7 @@ errorHandlingTests("invalid input to fromUuaf should throw", () => {
 
 errorHandlingTests("invalid input to fromUuaf should throw", () => {
   const invalid =
-    "Formula 106a16a0: trout named INVALID + swan named Danielle = earwig named Kathleen. Applicable only in universe d7bc3eca1ee7";
+    "Formula 106a16a0: trout INVALID + swan Danielle = earwig Kathleen. (planet d7bc3eca1ee7 only)";
   try {
     fromUuaf(invalid, "short");
     assert.fail("Invalid input should throw");

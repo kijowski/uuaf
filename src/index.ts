@@ -7,7 +7,7 @@ export type UUAF = {
   firstIngredient: { kind: string; name: string };
   secondIngredient: { kind: string; name: string };
   result: { kind: string; name: string };
-  universeId: string;
+  planetId: string;
 };
 
 export const uuaf = Object.assign(uuafV4, {
@@ -29,14 +29,14 @@ export function fromUuid(id: string, kind: UUAFKind = "long") {
   const name2 = names[parsed[7]];
   const animal3 = animals[parsed[8]];
   const name3 = names[parsed[9]];
-  const universeId = id.substring(24);
+  const planetId = id.substring(24);
 
   const uuaf = {
     recipeId,
     firstIngredient: { kind: animal1, name: name1 },
     secondIngredient: { kind: animal2, name: name2 },
     result: { kind: animal3, name: name3 },
-    universeId,
+    planetId,
   };
 
   switch (kind) {
@@ -59,7 +59,7 @@ export function toUuid(uuaf: string, check: boolean = true) {
   bytes.push(names.indexOf(parsed.secondIngredient.name));
   bytes.push(animals.indexOf(parsed.result.kind));
   bytes.push(names.indexOf(parsed.result.name));
-  bytes.push(...pairwise(parsed.universeId).map((x) => parseInt(x, 16)));
+  bytes.push(...pairwise(parsed.planetId).map((x) => parseInt(x, 16)));
 
   return uuid.stringify(bytes);
 }
@@ -176,27 +176,27 @@ const getShortString = ({
   firstIngredient,
   secondIngredient,
   result,
-  universeId,
+  planetId,
 }: UUAF) =>
-  `${recipeId}-${firstIngredient.kind}-${firstIngredient.name}-${secondIngredient.kind}-${secondIngredient.name}-${result.kind}-${result.name}-${universeId}`;
+  `${recipeId}-${firstIngredient.kind}-${firstIngredient.name}-${secondIngredient.kind}-${secondIngredient.name}-${result.kind}-${result.name}-${planetId}`;
 
 const getLongString = ({
   recipeId,
   firstIngredient,
   secondIngredient,
   result,
-  universeId,
+  planetId,
 }: UUAF) =>
-  `Formula ${recipeId}: ${firstIngredient.kind} named ${firstIngredient.name} + ${secondIngredient.kind} named ${secondIngredient.name} = ${result.kind} named ${result.name}. Applicable only in universe ${universeId}`;
+  `Formula ${recipeId}: ${firstIngredient.kind} ${firstIngredient.name} + ${secondIngredient.kind} ${secondIngredient.name} = ${result.kind} ${result.name} (planet ${planetId} only)`;
 
 const parseUuaf = (uuaf: string, check: boolean): UUAF => {
   let splitted;
   if (uuaf.indexOf("Formula ") === 0) {
     splitted = uuaf
       .replace("Formula", "")
-      .replace(/[\.:+=]/g, "")
-      .replace(/named/g, "")
-      .replace("Applicable only in universe ", "")
+      .replace(/[\.:+=\(\)]/g, "")
+      .replace("planet ", "")
+      .replace(" only", "")
       .split(" ")
       .filter((x) => x !== "");
   } else {
@@ -208,7 +208,7 @@ const parseUuaf = (uuaf: string, check: boolean): UUAF => {
   }
 
   const recipeId = splitted[0];
-  const universeId = splitted[7];
+  const planetId = splitted[7];
   const kinds = [splitted[1], splitted[3], splitted[5]];
   const parsedNames = [splitted[2], splitted[4], splitted[6]];
 
@@ -217,8 +217,8 @@ const parseUuaf = (uuaf: string, check: boolean): UUAF => {
       throw new TypeError("Invalid UUAF (recipe id)");
     }
 
-    if (universeId.length !== 12 || !/[0-9A-Fa-f]{12}/.test(universeId)) {
-      throw new TypeError("Invalid UUAF (universe id)");
+    if (planetId.length !== 12 || !/[0-9A-Fa-f]{12}/.test(planetId)) {
+      throw new TypeError("Invalid UUAF (planet id)");
     }
 
     if (kinds.some((kind) => !animals.includes(kind))) {
@@ -231,7 +231,7 @@ const parseUuaf = (uuaf: string, check: boolean): UUAF => {
   }
   return {
     recipeId,
-    universeId,
+    planetId,
     firstIngredient: { kind: kinds[0], name: parsedNames[0] },
     secondIngredient: { kind: kinds[1], name: parsedNames[1] },
     result: { kind: kinds[2], name: parsedNames[2] },
