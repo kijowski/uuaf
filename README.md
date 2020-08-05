@@ -53,3 +53,59 @@ console.log(uuaf());
 - Formula 952383ad: caribou named Corey + vole named Molly = bonobo named Taylor. Applicable only in universe a00af9c2a3c3
 - 952383ad-caribou-Corey-vole-Molly-bonobo-Taylor-a00af9c2a3c3
 - 952383ad-d340-50bf-b3ee-a00af9c2a3c3
+
+## API
+
+### uuaf
+
+Be default UUAF uses v4 version of UUID generation, but other options are availiable. Generator functions accepts input parameteres defined in [uuid npm library](https://www.npmjs.com/package/uuid) plus additional parameter `kind` which can be set to `short`, `long` or `raw`
+
+```typescript
+import { uuaf } from "uuaf";
+
+// Generate UUAF based on UUID v4
+console.log(uuaf());
+console.log(uuaf({ kind: "short" }));
+
+// Generate UUAF based on UUID v1
+console.log(uuaf.v1({ kind: "long" }));
+
+// Generate UUAF based on UUID v3
+console.log(uuaf.v3("name", namespaceUuid));
+console.log(uuaf.v3("name", namespaceUuid, "raw"));
+
+// Generate UUAF based on UUID v4
+console.log(uuaf.v4());
+
+// Generate UUAF based on UUID v5
+console.log(uuaf.v5("name", namespaceUuid));
+```
+
+### fromUuid / toUuid
+
+These two functions translate between UUID and UUAF
+
+```typescript
+import { fromUuid, toUuid } from "uuaf";
+
+const id = "952383ad-d340-50bf-b3ee-a00af9c2a3c3";
+const uuaf = fromUuid(id);
+console.log(uuaf);
+// Formula 952383ad: caribou named Corey + vole named Molly = bonobo named Taylor. Applicable only in universe a00af9c2a3c
+const backToId = toUuid(uuaf);
+console.log(id === backToId); // true
+```
+
+### fromUuaf
+
+This function is used to translate between different UUAF formats
+
+```typescript
+import { fromUuaf } from "uuaf";
+
+const uuaf =
+  "Formula 3a7c1b89: ferret named Raymond + kite named Jesus = mantis named Miguel. Applicable only in universe 621fb5d309d2";
+
+const shortUuaf = fromUuaf(uuaf, "short");
+console.log(shortUuaf); // 3a7c1b89-ferret-Raymond-kite-Jesus-mantis-Miguel-621fb5d309d2
+```
